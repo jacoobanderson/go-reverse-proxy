@@ -3,25 +3,27 @@ package main
 import (
 	"go-reverse-proxy/internal/config"
 	"go-reverse-proxy/internal/handler"
+	"go-reverse-proxy/internal/loadbalancer"
 	"log"
 	"net/http"
-	"net/url"
 )
 
 func main() {
+	servers := []string{
+		"http://localhost:8081",
+		"http://localhost:8082",
+		"http://localhost:8083",
+	}
+
+	lb := loadbalancer.NewLoadBalancer(servers)
+
 	cfg, err := config.LoadConfig("config/config.json")
 
 	if err != nil {
 		log.Fatalf("Error loading configuration: %v", err)
 	}
 
-	targetUrl, err := url.Parse(cfg.TargetURL)
-
-	if err != nil {
-		log.Fatalf("Error parsing target URL: %v", err)
-	}
-
-	proxyHandler := handler.NewProxyHandler(targetUrl)
+	proxyHandler := handler.NewProxyHandler(lb)
 
 	log.Printf("Starting reverse proxy on port %s", cfg.Port)
 
