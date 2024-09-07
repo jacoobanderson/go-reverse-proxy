@@ -6,6 +6,7 @@ import (
 	"go-reverse-proxy/internal/loadbalancer"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		"http://localhost:8083",
 	}
 
-	lb := loadbalancer.NewLoadBalancer(servers)
+	lb := loadbalancer.NewLoadBalancer(servers, time.Second)
 
 	cfg, err := config.LoadConfig("config/config.json")
 
