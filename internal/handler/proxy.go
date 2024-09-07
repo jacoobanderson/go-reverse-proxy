@@ -1,14 +1,15 @@
 package handler
 
 import (
+	"go-reverse-proxy/internal/loadbalancer"
 	"io"
 	"net/http"
-	"net/url"
 )
 
-func NewProxyHandler(targetURL *url.URL) http.HandlerFunc {
+func NewProxyHandler(lb *loadbalancer.LoadBalancer) http.HandlerFunc {
 	return func(responseWriter http.ResponseWriter, request *http.Request) {
-		proxyRequest, err := http.NewRequest(request.Method, targetURL.String()+request.RequestURI, request.Body)
+		targetURL := lb.NextServer() + request.RequestURI
+		proxyRequest, err := http.NewRequest(request.Method, targetURL, request.Body)
 
 		if err != nil {
 			http.Error(responseWriter, "Could not proxy to backend", http.StatusInternalServerError)
